@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for User Service
+  user-db:
+    image: postgres:15-alpine
+    container_name: ecom-user-db
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: user_pass
+      POSTGRES_DB: user_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - ecom-network
+
+  # PostgreSQL for Product Service
+  product-db:
+    image: postgres:15-alpine
+    container_name: ecom-product-db
+    environment:
+      POSTGRES_USER: product_admin
+      POSTGRES_PASSWORD: product_pass
+      POSTGRES_DB: product_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    networks:
+      - ecom-network
+
+  # PostgreSQL for Order Service
+  order-db:
+    image: postgres:15-alpine
+    container_name: ecom-order-db
+    environment:
+      POSTGRES_USER: order_admin
+      POSTGRES_PASSWORD: order_pass
+      POSTGRES_DB: order_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    networks:
+      - ecom-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: ecom-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ecom-network
+
+  # RabbitMQ for message broker
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: ecom-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit_user
+      RABBITMQ_DEFAULT_PASS: rabbit_pass
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - ecom-network
+
+  # Adminer for database management (optional but useful)
+  adminer:
+    image: adminer:latest
+    container_name: ecom-adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - ecom-network
+
+volumes:
+  user-db-data:
+  product-db-data:
+  order-db-data:
+  redis-data:
+  rabbitmq-data:
+
+networks:
+  ecom-network:
+    driver: bridge
