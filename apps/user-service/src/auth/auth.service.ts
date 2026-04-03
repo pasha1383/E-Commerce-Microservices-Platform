@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'prisma/prisma.service';
 import {UserService} from "../user/user.service";
 import {JwtService} from "@nestjs/jwt";
+import {Role} from "../common/enums/role.enum";
 
 @Injectable()
 export class AuthService {
@@ -27,13 +28,13 @@ export class AuthService {
         }
     }
 
-    async signup(email: string, password: string) {
+    async signup(email: string, password: string,role : Role =  Role.USER) {
         const existingUser = await this.userService.findByEmail(email);
         if (existingUser) {
             throw new UnauthorizedException("Email already exists");
         }
 
-        const user = await this.userService.create(email, password);
+        const user = await this.userService.create(email, password,role);
         const {password: _, ...result} = user;
         return result;
     }
